@@ -10,5 +10,5 @@ variable "dynamodb_table" {
 
 variable "env"{
     type = string
-    default = "prod"
+    default = "dev"
 }
