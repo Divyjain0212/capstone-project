@@ -7,11 +7,11 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "dev-terraform-state-divy-bucket"
-    key            = "dev/terraform.tfstate"
+    bucket         = "prod-terraform-state-divy-bucket"
+    key            = "prod/terraform.tfstate"
     region         = "ap-south-1"
     encrypt        = true
-    dynamodb_table = "dev-terraform-lock-table"
+    dynamodb_table = "prod-terraform-lock-table"
   }
 }
 

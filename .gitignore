@@ -1,4 +1,4 @@
-environment/*
+environment/dev
 .terraform/*
 storage/.terraform/*
 storage/terraform.tfstate.d

@@ -1,0 +1,15 @@
+---
+- name: Reload systemd
+  systemd:
+    daemon_reload: true
+
+- name: Restart app
+  systemd:
+    name: nodeapp
+    state: restarted
+    enabled: true
+
+- name: Restart nginx
+  systemd:
+    name: nginx
+    state: restarted
