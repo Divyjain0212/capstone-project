@@ -1,0 +1,36 @@
+---
+- name: Configure and Deploy Application
+  hosts: webservers
+  become: true
+  gather_facts: true
+
+  vars:
+    env: prod
+    app_port: 3000
+    app_repo_url: "https://github.com/Divyjain0212/capstone-project.git"
+    app_version: main
+
+  pre_tasks:
+    - name: Wait for instances to be reachable
+      wait_for_connection:
+        timeout: 120
+
+    - name: Gather facts
+      setup:
+
+  roles:
+    - common
+    - app_deploy
+
+  post_tasks:
+    - name: Verify application is running
+      uri:
+        url: "http://localhost:{{ app_port }}/health"
+        status_code: 200
+      register: health_check
+      retries: 5
+      delay: 10
+
+    - name: Print health status
+      debug:
+        msg: "Application is healthy - Status: {{ health_check.status }}"
