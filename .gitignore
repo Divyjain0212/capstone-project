@@ -1,0 +1,9 @@
+environment/*
+.terraform/*
+storage/.terraform/*
+storage/terraform.tfstate.d
+storage/.terraform.lock.hcl
+storage/terraform.tfstate
+storage/terraform.tfstate.backup
+.terraform.lock.hcl
+linux-key.pem
