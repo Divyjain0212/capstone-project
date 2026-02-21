@@ -1,3 +1,12 @@
+# data source
+data "aws_secretsmanager_secret_version" "db" {
+  secret_id = "capstone/${var.env}/db"
+}
+
+locals {
+  db_creds = jsondecode(data.aws_secretsmanager_secret_version.db.secret_string)
+}
+
 # RDS Module
 resource "aws_db_subnet_group" "main" {
   name       = "${var.env}-db-subnet-group"
@@ -18,8 +27,8 @@ resource "aws_db_instance" "main" {
   storage_encrypted     = true
 
   db_name  = var.db_name
-  username = var.db_username
-  password = var.db_password
+  username = local.db_creds["db_username"]
+  password = local.db_creds["db_password"]
 
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [var.db_security_group_id]

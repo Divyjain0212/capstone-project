@@ -1,3 +1,12 @@
+# Data source
+data "aws_secretsmanager_secret_version" "db" {
+  secret_id = "capstone/${var.env}/db"
+}
+
+locals {
+  db_creds = jsondecode(data.aws_secretsmanager_secret_version.db.secret_string)
+}
+
 # Auto Scaling Module
 resource "aws_launch_template" "app" {
   name_prefix   = "${var.env}-app-"
@@ -9,8 +18,8 @@ resource "aws_launch_template" "app" {
 
   user_data = base64encode(templatefile("${path.module}/install-app.sh", {
     db_host = var.db_host
-    db_user = var.db_username
-    db_pass = var.db_password
+    db_user = local.db_creds["db_username"]
+    db_pass = local.db_creds["db_password"]
     db_name = var.db_name
     PORT    = var.port
   }))

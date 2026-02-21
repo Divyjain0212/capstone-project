@@ -1,4 +1,4 @@
-environment/*
+environment/prod
 .terraform/*
 storage/.terraform/*
 storage/terraform.tfstate.d

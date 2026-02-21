@@ -1,0 +1,58 @@
+---
+- name: Copy environment file
+  template:
+    src: app.env.j2
+    dest: /opt/app/.env
+    owner: ec2-user
+    group: ec2-user
+    mode: "0600"
+
+- name: Pull latest application code
+  git:
+    repo: "{{ app_repo_url }}"
+    dest: /opt/app
+    version: "{{ app_version | default('main') }}"
+    force: true
+  become_user: ec2-user
+
+- name: Install application dependencies
+  npm:
+    path: /opt/app
+    state: present
+  become_user: ec2-user
+
+- name: Copy systemd service file
+  template:
+    src: app.service.j2
+    dest: /etc/systemd/system/nodeapp.service
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart app
+
+- name: Configure Nginx reverse proxy
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/conf.d/app.conf
+    mode: "0644"
+  notify: Restart nginx
+
+- name: Enable and start application
+  systemd:
+    name: nodeapp
+    enabled: true
+    state: started
+    daemon_reload: true
+
+- name: Enable and start Nginx
+  systemd:
+    name: nginx
+    enabled: true
+    state: started
+
+- name: Wait for application to be healthy
+  uri:
+    url: "http://localhost:{{ app_port }}/health"
+    status_code: 200
+  retries: 5
+  delay: 10

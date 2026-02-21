@@ -1,0 +1,43 @@
+{
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/var/log/messages",
+            "log_group_name": "/aws/ec2/{{ env }}/system",
+            "log_stream_name": "{instance_id}/messages"
+          },
+          {
+            "file_path": "/opt/app/logs/app.log",
+            "log_group_name": "/aws/ec2/{{ env }}/application",
+            "log_stream_name": "{instance_id}/app"
+          }
+        ]
+      }
+    }
+  },
+  "metrics": {
+    "namespace": "CWAgent",
+    "metrics_collected": {
+      "mem": {
+        "measurement": ["mem_used_percent"],
+        "metrics_collection_interval": 60
+      },
+      "disk": {
+        "measurement": ["disk_used_percent"],
+        "resources": ["/"],
+        "metrics_collection_interval": 60
+      },
+      "cpu": {
+        "measurement": ["cpu_usage_idle", "cpu_usage_user", "cpu_usage_system"],
+        "metrics_collection_interval": 60,
+        "totalcpu": true
+      }
+    },
+    "append_dimensions": {
+      "InstanceId": "${aws:InstanceId}",
+      "AutoScalingGroupName": "${aws:AutoScalingGroupName}"
+    }
+  }
+}

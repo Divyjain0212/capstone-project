@@ -20,6 +20,14 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+data "aws_secretsmanager_secret_version" "db" {
+  secret_id = "capstone/${var.env}/db"
+}
+
+locals {
+  db_creds = jsondecode(data.aws_secretsmanager_secret_version.db.secret_string)
+}
+
 data "aws_ami" "amazon_linux_2023" {
   most_recent = true
   owners      = ["amazon"]
@@ -67,8 +75,8 @@ module "autoscaling" {
   ami_id                     = data.aws_ami.amazon_linux_2023.id
   key_name                   = var.key_name
   db_name                    = var.db_name
-  db_username                = var.db_username
-  db_password                = var.db_password
+  db_username                = local.db_creds["db_username"]
+  db_password                = local.db_creds["db_password"]
   db_host                    = module.rds.db_endpoint
 }
 
@@ -83,8 +91,8 @@ module "rds" {
   db_instance_class     = var.db_instance_class
   db_allocated_storage  = var.db_allocated_storage
   db_name               = var.db_name
-  db_username           = var.db_username
-  db_password           = var.db_password
+  db_username           = local.db_creds["db_username"]
+  db_password           = local.db_creds["db_password"]
   multi_az              = var.db_multi_az
   backup_retention_days = var.db_backup_retention_days
 }
